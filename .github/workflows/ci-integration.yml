@@ -1,0 +1,194 @@
+name: CI Integration
+
+on:
+  push:
+    branches:
+      - 'release/**'
+      - 'hotfix/**'
+  pull_request:
+    branches:
+      - main
+
+env:
+  PYTHON_VERSION: "3.12"
+  AWS_REGION: sa-east-1
+  TF_VERSION: "1.7.5"
+
+jobs:
+  quality:
+    name: Code Quality
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install quality tools
+        run: pip install black isort flake8 bandit --quiet
+
+      - name: black
+        run: black --check --line-length 100 src/ lambda_handler.py config/ scripts/
+
+      - name: isort
+        run: isort --check-only --profile black src/ lambda_handler.py config/ scripts/
+
+      - name: flake8
+        run: |
+          flake8 src/ lambda_handler.py config/ \
+            --max-line-length=100 \
+            --extend-ignore=E203,W503
+
+      - name: bandit
+        run: bandit -r src/ lambda_handler.py -ll --quiet
+
+  unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt pytest pytest-asyncio --quiet
+
+      - name: Run unit tests
+        run: pytest src/tests/ --ignore=src/tests/integration -v
+
+  integration-tests:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    needs: [quality, unit-tests]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install Python dependencies
+        run: pip install -r requirements.txt pytest pytest-asyncio boto3 --quiet
+
+      - name: Build Lambda Layer
+        run: |
+          mkdir -p layer/python
+          pip install -r requirements.txt -t layer/python --upgrade --quiet
+          cd layer && zip -r ../lambda_layer.zip python/ --quiet
+
+      - name: Build Lambda Package
+        run: |
+          zip -r lambda_function.zip . \
+            -x "*.git*" -x ".venv/*" -x "local_output/*" \
+            -x "terraform/*" -x ".github/*" -x "*.pyc" \
+            -x "*/__pycache__/*" -x "layer/*" \
+            -x "lambda_layer.zip" -x "lambda_function.zip" \
+            -x "*.egg-info/*" --quiet
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+          terraform_wrapper: false
+
+      - name: Terraform Init
+        id: tf_init
+        working-directory: terraform/integration-test
+        run: |
+          terraform init -input=false \
+            -backend-config="key=nerofy-finance-test/${{ github.run_id }}/terraform.tfstate"
+
+      - name: Terraform Apply
+        id: tf_apply
+        working-directory: terraform/integration-test
+        run: |
+          terraform apply -auto-approve -input=false \
+            -var="run_id=${{ github.run_id }}"
+
+      - name: Exportar outputs do Terraform
+        id: tf
+        working-directory: terraform/integration-test
+        run: |
+          echo "lambda_name=$(terraform output -raw lambda_function_name)" >> "$GITHUB_OUTPUT"
+          echo "s3_bucket=$(terraform output -raw s3_bucket_name)" >> "$GITHUB_OUTPUT"
+          echo "dynamo_auth=$(terraform output -raw dynamo_auth_table)" >> "$GITHUB_OUTPUT"
+          echo "dynamo_sync=$(terraform output -raw dynamo_sync_table)" >> "$GITHUB_OUTPUT"
+
+      - name: Run integration tests
+        env:
+          TEST_LAMBDA_NAME: ${{ steps.tf.outputs.lambda_name }}
+          TEST_S3_BUCKET: ${{ steps.tf.outputs.s3_bucket }}
+          TEST_DYNAMO_AUTH_TABLE: ${{ steps.tf.outputs.dynamo_auth }}
+          TEST_DYNAMO_SYNC_TABLE: ${{ steps.tf.outputs.dynamo_sync }}
+          AWS_DEFAULT_REGION: ${{ env.AWS_REGION }}
+        run: pytest src/tests/integration/ -v
+
+      - name: Terraform Destroy
+        # Sempre executa para garantir limpeza, mesmo se testes falharem
+        if: always() && steps.tf_init.outcome == 'success'
+        working-directory: terraform/integration-test
+        run: |
+          terraform destroy -auto-approve -input=false \
+            -var="run_id=${{ github.run_id }}"
+
+  create-pr:
+    name: Create PR
+    runs-on: ubuntu-latest
+    needs: [integration-tests]
+    # Só cria PR quando disparado por push (não em PR checks)
+    if: github.event_name == 'push'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Criar PR para main
+        env:
+          GH_TOKEN: ${{ secrets.PAT_TOKEN }}
+        run: |
+          BRANCH="${{ github.ref_name }}"
+
+          EXISTING=$(gh pr list --base main --head "$BRANCH" --json number --jq '.[0].number // empty')
+          if [ -n "$EXISTING" ]; then
+            echo "PR #$EXISTING já existe para $BRANCH → main. Pulando."
+            exit 0
+          fi
+
+          if [[ "$BRANCH" =~ ^release/ ]]; then
+            VERSION=$(echo "$BRANCH" | sed 's|release/||')
+            TITLE="Release $VERSION"
+            CHANGELOG=$(git log main..HEAD --pretty=format:"- %s" 2>/dev/null || echo "- Release $VERSION")
+            BODY="## Release $VERSION
+
+### Mudanças incluídas
+$CHANGELOG
+
+---
+PR automático criado pelo CI após testes unitários e de integração passarem."
+
+          elif [[ "$BRANCH" =~ ^hotfix/ ]]; then
+            DESC=$(echo "$BRANCH" | sed 's|hotfix/||')
+            TITLE="Hotfix: $DESC"
+            BODY="## Hotfix: $DESC
+
+Correção crítica aplicada diretamente sobre produção.
+
+---
+PR automático criado pelo CI após testes unitários e de integração passarem."
+          fi
+
+          gh pr create \
+            --base main \
+            --head "$BRANCH" \
+            --title "$TITLE" \
+            --body "$BODY"

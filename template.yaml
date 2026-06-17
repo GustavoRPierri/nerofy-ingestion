@@ -1,0 +1,47 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: nerofy-finance — Lambda de ingestão de dados via Pluggy
+
+Globals:
+  Function:
+    Timeout: 60
+    MemorySize: 256
+    Runtime: python3.12
+    Architectures:
+      - x86_64
+
+Resources:
+  IngestionFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: nerofy-ingestion
+      Handler: lambda_handler.lambda_handler
+      CodeUri: .
+      Description: Recebe eventos SQS da Pluggy e persiste dados na camada bronze do S3
+      Environment:
+        Variables:
+          AWS_REGION: sa-east-1
+          S3_BRONZE_BUCKET: nerofy-bronze-dev
+          DYNAMO_AUTH_TABLE: PluggyAuth
+          PLUGGY_API_URL: https://api.pluggy.ai
+          SSM_PLUGGY_SECRET_PATH: /nerofy/pluggy/client_secret
+          LOG_LEVEL: INFO
+          ENV: dev
+          EXECUCAO: aws
+      Policies:
+        - S3WritePolicy:
+            BucketName: nerofy-bronze-dev
+        - DynamoDBCrudPolicy:
+            TableName: PluggyAuth
+        - DynamoDBCrudPolicy:
+            TableName: PluggyTransactionSync
+        - SSMParameterReadPolicy:
+            ParameterName: /nerofy/pluggy/client_secret
+      Events:
+        SQSEvent:
+          Type: SQS
+          Properties:
+            Queue: arn:aws:sqs:sa-east-1:123456789012:nerofy-events
+            BatchSize: 10
+            FunctionResponseTypes:
+              - ReportBatchItemFailures

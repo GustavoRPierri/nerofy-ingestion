@@ -1,0 +1,18 @@
+{
+  "Records": [
+    {
+      "messageId": "msg-003",
+      "receiptHandle": "receipt-003",
+      "body": "{\"event\": \"connector/updated\", \"id\": \"evt-conn-001\", \"clientId\": \"client-xyz\", \"data\": {\"connectorId\": 201}}",
+      "attributes": {
+        "ApproximateReceiveCount": "1",
+        "SentTimestamp": "1716480120000"
+      },
+      "messageAttributes": {},
+      "md5OfBody": "",
+      "eventSource": "aws:sqs",
+      "eventSourceARN": "arn:aws:sqs:sa-east-1:123456789012:nerofy-events",
+      "awsRegion": "sa-east-1"
+    }
+  ]
+}

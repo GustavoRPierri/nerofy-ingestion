@@ -1,0 +1,18 @@
+{
+  "Records": [
+    {
+      "messageId": "msg-001",
+      "receiptHandle": "receipt-001",
+      "body": "{\"event\": \"item/updated\", \"id\": \"evt-item-001\", \"itemId\": \"item-abc123\", \"clientId\": \"client-xyz\"}",
+      "attributes": {
+        "ApproximateReceiveCount": "1",
+        "SentTimestamp": "1716480000000"
+      },
+      "messageAttributes": {},
+      "md5OfBody": "",
+      "eventSource": "aws:sqs",
+      "eventSourceARN": "arn:aws:sqs:sa-east-1:123456789012:nerofy-events",
+      "awsRegion": "sa-east-1"
+    }
+  ]
+}

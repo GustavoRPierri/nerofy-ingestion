@@ -1,0 +1,83 @@
+name: Deploy to AWS
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  AWS_REGION: sa-east-1
+  TF_VERSION: "1.7.5"
+  PYTHON_VERSION: "3.12"
+
+jobs:
+  deploy:
+    name: Build & Deploy Lambda
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      # ── Build Lambda Layer ──────────────────────────────────────────────────
+      # Instala as dependências em layer/python/ e compacta.
+      # O diretório "python/" é obrigatório para que o Lambda encontre os pacotes.
+      - name: Build Lambda Layer
+        run: |
+          mkdir -p layer/python
+          pip install -r requirements.txt -t layer/python --upgrade --quiet
+          cd layer && zip -r ../lambda_layer.zip python/ --quiet
+          echo "Layer size: $(du -sh ../lambda_layer.zip | cut -f1)"
+
+      # ── Build Lambda package ────────────────────────────────────────────────
+      # Empacota apenas o código-fonte, excluindo artefatos de build e dev.
+      - name: Build Lambda package
+        run: |
+          zip -r lambda_function.zip . \
+            -x "*.git*" \
+            -x ".venv/*" \
+            -x "local_output/*" \
+            -x "terraform/*" \
+            -x ".github/*" \
+            -x "*.pyc" \
+            -x "*/__pycache__/*" \
+            -x "layer/*" \
+            -x "lambda_layer.zip" \
+            -x "lambda_function.zip" \
+            -x "*.egg-info/*" \
+            --quiet
+          echo "Package size: $(du -sh lambda_function.zip | cut -f1)"
+
+      # ── Terraform ──────────────────────────────────────────────────────────
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Terraform Init
+        working-directory: terraform
+        run: terraform init
+
+      - name: Terraform Validate
+        working-directory: terraform
+        run: terraform validate
+
+      - name: Terraform Plan
+        working-directory: terraform
+        run: terraform plan -out=tfplan -input=false
+
+      - name: Terraform Apply
+        working-directory: terraform
+        run: terraform apply -auto-approve -input=false tfplan
