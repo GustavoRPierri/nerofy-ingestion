@@ -170,23 +170,11 @@ jobs:
             VERSION=$(echo "$BRANCH" | sed 's|release/||')
             TITLE="Release $VERSION"
             CHANGELOG=$(git log main..HEAD --pretty=format:"- %s" 2>/dev/null || echo "- Release $VERSION")
-            BODY="## Release $VERSION
-
-### Mudanças incluídas
-$CHANGELOG
-
----
-PR automático criado pelo CI após testes unitários e de integração passarem."
-
+            BODY=$(printf "## Release %s\n\n### Mudanças incluídas\n%s\n\n---\nPR automático criado pelo CI após testes unitários e de integração passarem." "$VERSION" "$CHANGELOG")
           elif [[ "$BRANCH" =~ ^hotfix/ ]]; then
             DESC=$(echo "$BRANCH" | sed 's|hotfix/||')
             TITLE="Hotfix: $DESC"
-            BODY="## Hotfix: $DESC
-
-Correção crítica aplicada diretamente sobre produção.
-
----
-PR automático criado pelo CI após testes unitários e de integração passarem."
+            BODY=$(printf "## Hotfix: %s\n\nCorreção crítica aplicada diretamente sobre produção.\n\n---\nPR automático criado pelo CI após testes unitários e de integração passarem." "$DESC")
           fi
 
           gh pr create \
