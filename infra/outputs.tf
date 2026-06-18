@@ -22,6 +22,11 @@ output "sqs_queue_arn" {
   value = aws_sqs_queue.events.arn
 }
 
+output "webhook_url" {
+  description = "URL do endpoint para configurar na Pluggy como webhook"
+  value       = "https://${aws_api_gateway_rest_api.webhook.id}.execute-api.${var.aws_region}.amazonaws.com/${aws_api_gateway_stage.prod.stage_name}/webhook"
+}
+
 output "github_deploy_role_arn" {
   description = "ARN da role OIDC para deploy — usar como AWS_ROLE_ARN_DEPLOY no GitHub"
   value       = aws_iam_role.github_deploy.arn
