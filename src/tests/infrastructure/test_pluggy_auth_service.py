@@ -6,9 +6,10 @@ Layer 3 → Pluggy API (via HttpSession mockado)
 """
 
 import asyncio
-import pytest
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timedelta, timezone
 from unittest.mock import AsyncMock
+
+import pytest
 
 from src.infrastructure.auth.pluggy_auth_service import PluggyAuthService
 

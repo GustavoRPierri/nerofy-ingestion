@@ -5,7 +5,9 @@ incluindo campos extras que devem ser ignorados.
 """
 
 import json
+
 import pytest
+
 from src.domain.entities.sqs import SQSEvent
 from src.domain.entities.webhook import ItemEvent, TransactionsEvent
 

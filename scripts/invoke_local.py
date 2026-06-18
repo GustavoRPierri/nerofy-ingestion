@@ -31,9 +31,14 @@ if os.environ.get("EXECUCAO", "aws").lower() != "mock":
 
 logging.basicConfig(level=logging.DEBUG, format="%(levelname)s | %(name)s | %(message)s")
 
-from src.domain.entities.sqs import SQSEvent
+from scripts.local_mock import (
+    MockAuthService,
+    MockPluggyClient,
+    MockS3Adapter,
+    MockSyncRepository,
+)
 from src.application.event_processor import EventProcessor
-from scripts.local_mock import MockAuthService, MockPluggyClient, MockS3Adapter, MockSyncRepository
+from src.domain.entities.sqs import SQSEvent
 
 logger = logging.getLogger(__name__)
 

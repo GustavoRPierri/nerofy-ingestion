@@ -1,4 +1,5 @@
 import logging
+
 from src.domain.interfaces.clients import IPluggyClient
 from src.utils.http_session import HttpSession
 

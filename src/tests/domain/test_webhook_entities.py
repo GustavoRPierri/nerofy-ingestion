@@ -4,11 +4,12 @@ Nenhuma dependência externa — apenas lógica pura de validação Pydantic.
 """
 
 import pytest
+
 from src.domain.entities.webhook import (
-    WebhookEvent,
+    ConnectorEvent,
     ItemEvent,
     TransactionsEvent,
-    ConnectorEvent,
+    WebhookEvent,
 )
 
 

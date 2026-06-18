@@ -5,12 +5,14 @@ import os
 from typing import List
 
 from config.settings import settings
+from src.application.event_processor import EventProcessor
 from src.domain.entities.sqs import SQSEvent
 from src.domain.entities.webhook import WebhookEvent
-from src.application.event_processor import EventProcessor
-from src.infrastructure.auth.pluggy_auth_service import PluggyAuthService
 from src.infrastructure.auth.auth_repository import AuthRepository
-from src.infrastructure.database.transaction_sync_repository import TransactionSyncRepository
+from src.infrastructure.auth.pluggy_auth_service import PluggyAuthService
+from src.infrastructure.database.transaction_sync_repository import (
+    TransactionSyncRepository,
+)
 from src.infrastructure.storage.s3_adapter import S3Adapter
 from src.utils.http_session import HttpSession
 

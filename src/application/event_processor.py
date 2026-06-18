@@ -1,13 +1,13 @@
 import asyncio
 import logging
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timedelta, timezone
 
+from src.domain.entities.sync import TransactionSyncRecord
+from src.domain.entities.webhook import ConnectorEvent, ItemEvent, TransactionsEvent
 from src.domain.interfaces.clients import IPluggyClient
 from src.domain.interfaces.repositories import ITransactionSyncRepository
-from src.domain.entities.sync import TransactionSyncRecord
-from src.domain.entities.webhook import ItemEvent, TransactionsEvent, ConnectorEvent
-from src.infrastructure.clients.pluggy_http_client import PluggyHttpClient
 from src.infrastructure.auth.pluggy_auth_service import PluggyAuthService
+from src.infrastructure.clients.pluggy_http_client import PluggyHttpClient
 from src.infrastructure.storage.s3_adapter import S3Adapter
 from src.utils.http_session import HttpSession
 

@@ -5,13 +5,14 @@ são substituídas por AsyncMocks — nenhuma chamada HTTP ou AWS real.
 """
 
 import asyncio
-import pytest
 from datetime import datetime, timezone
 from unittest.mock import AsyncMock, patch
 
-from src.domain.entities.webhook import WebhookEvent
-from src.domain.entities.sync import TransactionSyncRecord
+import pytest
+
 from src.application.event_processor import EventProcessor
+from src.domain.entities.sync import TransactionSyncRecord
+from src.domain.entities.webhook import WebhookEvent
 
 NOW = datetime(2026, 5, 23, 12, 0, 0, tzinfo=timezone.utc)
 

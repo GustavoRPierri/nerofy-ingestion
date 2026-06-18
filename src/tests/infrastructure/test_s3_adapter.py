@@ -5,9 +5,10 @@ O boto3 é completamente mockado — nenhuma chamada AWS real.
 
 import asyncio
 import json
-import pytest
 from datetime import datetime, timezone
 from unittest.mock import MagicMock, patch
+
+import pytest
 
 from src.infrastructure.storage.s3_adapter import S3Adapter
 

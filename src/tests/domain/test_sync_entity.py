@@ -3,8 +3,10 @@
 Camada de domínio pura — sem dependências de infraestrutura.
 """
 
-import pytest
 from datetime import datetime, timezone
+
+import pytest
+
 from src.domain.entities.sync import TransactionSyncRecord
 
 NOW = datetime(2026, 5, 23, 12, 0, 0, tzinfo=timezone.utc)

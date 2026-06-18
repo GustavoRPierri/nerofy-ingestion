@@ -1,6 +1,8 @@
 import logging
+
 import boto3
 from botocore.exceptions import ClientError
+
 from src.domain.entities.sync import TransactionSyncRecord
 from src.domain.interfaces.repositories import ITransactionSyncRepository
 

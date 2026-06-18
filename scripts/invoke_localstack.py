@@ -38,11 +38,13 @@ sys.path.insert(0, str(ROOT))
 
 logging.basicConfig(level=logging.DEBUG, format="%(levelname)s | %(name)s | %(message)s")
 
-from src.domain.entities.sqs import SQSEvent
-from src.application.event_processor import EventProcessor
-from src.infrastructure.storage.s3_adapter import S3Adapter
-from src.infrastructure.database.transaction_sync_repository import TransactionSyncRepository
 from scripts.local_mock import MockAuthService, MockPluggyClient
+from src.application.event_processor import EventProcessor
+from src.domain.entities.sqs import SQSEvent
+from src.infrastructure.database.transaction_sync_repository import (
+    TransactionSyncRepository,
+)
+from src.infrastructure.storage.s3_adapter import S3Adapter
 
 logger = logging.getLogger(__name__)
 

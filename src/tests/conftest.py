@@ -1,6 +1,7 @@
 """Fixtures compartilhadas entre todas as camadas de teste."""
 
 import json
+
 import pytest
 
 # ── Payloads de webhook crus (como chegam da Pluggy via SQS) ─────────────────
