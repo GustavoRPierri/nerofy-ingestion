@@ -21,3 +21,13 @@ output "sqs_queue_url" {
 output "sqs_queue_arn" {
   value = aws_sqs_queue.events.arn
 }
+
+output "github_deploy_role_arn" {
+  description = "ARN da role OIDC para deploy — usar como AWS_ROLE_ARN_DEPLOY no GitHub"
+  value       = aws_iam_role.github_deploy.arn
+}
+
+output "github_ci_role_arn" {
+  description = "ARN da role OIDC para CI — usar como AWS_ROLE_ARN_CI no GitHub"
+  value       = aws_iam_role.github_ci.arn
+}
