@@ -2,6 +2,7 @@
 
 O boto3 é completamente mockado — nenhuma chamada AWS real.
 """
+
 import asyncio
 import json
 import pytest
@@ -74,6 +75,7 @@ class TestS3Serialization:
     def test_non_serializable_types_converted_via_default(self):
         adapter, mock_s3 = make_adapter()
         from datetime import date
+
         run_save(adapter, "base", "file.json", {"date": date(2026, 5, 23)})
         body_bytes = mock_s3.put_object.call_args.kwargs["Body"]
         parsed = json.loads(body_bytes.decode("utf-8"))

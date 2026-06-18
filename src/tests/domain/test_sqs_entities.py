@@ -3,6 +3,7 @@
 Verifica que SQSEvent lida corretamente com o formato real da AWS,
 incluindo campos extras que devem ser ignorados.
 """
+
 import json
 import pytest
 from src.domain.entities.sqs import SQSEvent

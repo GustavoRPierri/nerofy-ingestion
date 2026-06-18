@@ -11,6 +11,7 @@ Uso:
 
 Requer LocalStack rodando em localhost:4566.
 """
+
 import asyncio
 import json
 import logging
@@ -46,17 +47,19 @@ from scripts.local_mock import MockAuthService, MockPluggyClient
 logger = logging.getLogger(__name__)
 
 _EVENT_FILES = {
-    "item":         "events/sqs_item_update.json",
+    "item": "events/sqs_item_update.json",
     "transactions": "events/sqs_transactions.json",
-    "connector":    "events/sqs_connector.json",
+    "connector": "events/sqs_connector.json",
 }
 
 
 async def run_event(sqs_event_dict: dict) -> None:
-    s3_adapter   = S3Adapter(bucket_name=os.environ["S3_BRONZE_BUCKET"])
-    sync_repo    = TransactionSyncRepository(table_name=os.environ.get("DYNAMO_SYNC_TABLE", "PluggyTransactionSync"))
+    s3_adapter = S3Adapter(bucket_name=os.environ["S3_BRONZE_BUCKET"])
+    sync_repo = TransactionSyncRepository(
+        table_name=os.environ.get("DYNAMO_SYNC_TABLE", "PluggyTransactionSync")
+    )
     auth_service = MockAuthService()
-    mock_client  = MockPluggyClient()
+    mock_client = MockPluggyClient()
 
     parsed = SQSEvent.model_validate(sqs_event_dict)
     logger.info("Processando %d evento(s) SQS", len(parsed.Records))

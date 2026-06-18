@@ -1,9 +1,10 @@
 """Fixtures compartilhadas entre todas as camadas de teste."""
+
 import json
 import pytest
 
-
 # ── Payloads de webhook crus (como chegam da Pluggy via SQS) ─────────────────
+
 
 @pytest.fixture
 def item_payload():
@@ -38,17 +39,20 @@ def connector_payload():
 
 # ── Evento SQS completo (formato real da AWS) ─────────────────────────────────
 
+
 @pytest.fixture
 def sqs_item_event(item_payload):
     return {
-        "Records": [{
-            "messageId": "msg-001",
-            "receiptHandle": "rcpt-001",
-            "body": json.dumps(item_payload),
-            "attributes": {"ApproximateReceiveCount": "1"},
-            "eventSource": "aws:sqs",
-            "awsRegion": "sa-east-1",
-        }]
+        "Records": [
+            {
+                "messageId": "msg-001",
+                "receiptHandle": "rcpt-001",
+                "body": json.dumps(item_payload),
+                "attributes": {"ApproximateReceiveCount": "1"},
+                "eventSource": "aws:sqs",
+                "awsRegion": "sa-east-1",
+            }
+        ]
     }
 
 

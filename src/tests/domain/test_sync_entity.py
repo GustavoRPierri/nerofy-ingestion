@@ -2,6 +2,7 @@
 
 Camada de domínio pura — sem dependências de infraestrutura.
 """
+
 import pytest
 from datetime import datetime, timezone
 from src.domain.entities.sync import TransactionSyncRecord

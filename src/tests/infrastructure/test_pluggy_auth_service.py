@@ -4,6 +4,7 @@ Layer 1 → memória
 Layer 2 → DynamoDB (via AuthRepository mockado)
 Layer 3 → Pluggy API (via HttpSession mockado)
 """
+
 import asyncio
 import pytest
 from datetime import datetime, timezone, timedelta
@@ -12,7 +13,7 @@ from unittest.mock import AsyncMock
 from src.infrastructure.auth.pluggy_auth_service import PluggyAuthService
 
 FUTURE = datetime.now(timezone.utc) + timedelta(hours=22)
-PAST   = datetime.now(timezone.utc) - timedelta(hours=1)
+PAST = datetime.now(timezone.utc) - timedelta(hours=1)
 
 
 def make_service(

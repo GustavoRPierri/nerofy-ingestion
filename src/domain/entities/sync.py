@@ -14,10 +14,10 @@ class TransactionSyncRecord(BaseModel):
 
     def to_dynamo_item(self) -> dict:
         return {
-            "accountId":    self.account_id,
-            "itemId":       self.item_id,
+            "accountId": self.account_id,
+            "itemId": self.item_id,
             "lastSyncedAt": self.last_synced_at.isoformat(),
-            "totalSynced":  self.total_synced,
+            "totalSynced": self.total_synced,
         }
 
     @classmethod
@@ -25,6 +25,8 @@ class TransactionSyncRecord(BaseModel):
         return cls(
             account_id=item["accountId"],
             item_id=item["itemId"],
-            last_synced_at=datetime.fromisoformat(item["lastSyncedAt"]).replace(tzinfo=timezone.utc),
+            last_synced_at=datetime.fromisoformat(item["lastSyncedAt"]).replace(
+                tzinfo=timezone.utc
+            ),
             total_synced=int(item.get("totalSynced", 0)),
         )

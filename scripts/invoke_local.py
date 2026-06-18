@@ -9,6 +9,7 @@ Uso:
 
 Requer EXECUCAO=mock no .env.
 """
+
 import asyncio
 import json
 import logging
@@ -21,6 +22,7 @@ ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(ROOT))
 
 from dotenv import load_dotenv
+
 load_dotenv(dotenv_path=ROOT / ".env", override=True)
 
 if os.environ.get("EXECUCAO", "aws").lower() != "mock":
@@ -36,17 +38,17 @@ from scripts.local_mock import MockAuthService, MockPluggyClient, MockS3Adapter,
 logger = logging.getLogger(__name__)
 
 _EVENT_FILES = {
-    "item":         "events/sqs_item_update.json",
+    "item": "events/sqs_item_update.json",
     "transactions": "events/sqs_transactions.json",
-    "connector":    "events/sqs_connector.json",
+    "connector": "events/sqs_connector.json",
 }
 
 
 async def run_event(sqs_event_dict: dict) -> None:
-    sync_repo    = MockSyncRepository()
-    s3_adapter   = MockS3Adapter()
+    sync_repo = MockSyncRepository()
+    s3_adapter = MockS3Adapter()
     auth_service = MockAuthService()
-    mock_client  = MockPluggyClient()
+    mock_client = MockPluggyClient()
 
     parsed = SQSEvent.model_validate(sqs_event_dict)
     logger.info("Processando %d evento(s) SQS", len(parsed.Records))

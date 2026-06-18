@@ -25,5 +25,7 @@ class TransactionSyncRepository(ITransactionSyncRepository):
         try:
             self._table.put_item(Item=record.to_dynamo_item())
         except ClientError as e:
-            logger.error("Erro ao salvar cursor no DynamoDB para conta %s: %s", record.account_id, e)
+            logger.error(
+                "Erro ao salvar cursor no DynamoDB para conta %s: %s", record.account_id, e
+            )
             raise
