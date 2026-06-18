@@ -1,4 +1,5 @@
 import logging
+
 from src.domain.interfaces.clients import IPluggyClient
 from src.utils.http_session import HttpSession
 
@@ -24,7 +25,10 @@ class PluggyHttpClient(IPluggyClient):
         all_transactions: list[dict] = []
         page = 1
         while True:
-            url = f"{_BASE_URL}/transactions?accountId={account_id}&page={page}&pageSize={_PAGE_SIZE}{date_filter}"
+            url = (
+                f"{_BASE_URL}/transactions?accountId={account_id}"
+                f"&page={page}&pageSize={_PAGE_SIZE}{date_filter}"
+            )
             data = await self._http.get(url, headers=self._headers)
             all_transactions.extend(data.get("results", []))
             if page >= data.get("totalPages", 1):

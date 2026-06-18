@@ -11,6 +11,7 @@ Uso:
 
 Requer LocalStack rodando em localhost:4566.
 """
+
 import asyncio
 import json
 import logging
@@ -37,26 +38,30 @@ sys.path.insert(0, str(ROOT))
 
 logging.basicConfig(level=logging.DEBUG, format="%(levelname)s | %(name)s | %(message)s")
 
-from src.domain.entities.sqs import SQSEvent
-from src.application.event_processor import EventProcessor
-from src.infrastructure.storage.s3_adapter import S3Adapter
-from src.infrastructure.database.transaction_sync_repository import TransactionSyncRepository
 from scripts.local_mock import MockAuthService, MockPluggyClient
+from src.application.event_processor import EventProcessor
+from src.domain.entities.sqs import SQSEvent
+from src.infrastructure.database.transaction_sync_repository import (
+    TransactionSyncRepository,
+)
+from src.infrastructure.storage.s3_adapter import S3Adapter
 
 logger = logging.getLogger(__name__)
 
 _EVENT_FILES = {
-    "item":         "events/sqs_item_update.json",
+    "item": "events/sqs_item_update.json",
     "transactions": "events/sqs_transactions.json",
-    "connector":    "events/sqs_connector.json",
+    "connector": "events/sqs_connector.json",
 }
 
 
 async def run_event(sqs_event_dict: dict) -> None:
-    s3_adapter   = S3Adapter(bucket_name=os.environ["S3_BRONZE_BUCKET"])
-    sync_repo    = TransactionSyncRepository(table_name=os.environ.get("DYNAMO_SYNC_TABLE", "PluggyTransactionSync"))
+    s3_adapter = S3Adapter(bucket_name=os.environ["S3_BRONZE_BUCKET"])
+    sync_repo = TransactionSyncRepository(
+        table_name=os.environ.get("DYNAMO_SYNC_TABLE", "PluggyTransactionSync")
+    )
     auth_service = MockAuthService()
-    mock_client  = MockPluggyClient()
+    mock_client = MockPluggyClient()
 
     parsed = SQSEvent.model_validate(sqs_event_dict)
     logger.info("Processando %d evento(s) SQS", len(parsed.Records))

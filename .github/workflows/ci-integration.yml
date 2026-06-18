@@ -63,14 +63,16 @@ jobs:
     name: Integration Tests
     runs-on: ubuntu-latest
     needs: [quality, unit-tests]
+    permissions:
+      id-token: write
+      contents: read
     steps:
       - uses: actions/checkout@v4
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN_CI }}
           aws-region: ${{ env.AWS_REGION }}
 
       - uses: actions/setup-python@v5
@@ -168,23 +170,11 @@ jobs:
             VERSION=$(echo "$BRANCH" | sed 's|release/||')
             TITLE="Release $VERSION"
             CHANGELOG=$(git log main..HEAD --pretty=format:"- %s" 2>/dev/null || echo "- Release $VERSION")
-            BODY="## Release $VERSION
-
-### Mudanças incluídas
-$CHANGELOG
-
----
-PR automático criado pelo CI após testes unitários e de integração passarem."
-
+            BODY=$(printf "## Release %s\n\n### Mudanças incluídas\n%s\n\n---\nPR automático criado pelo CI após testes unitários e de integração passarem." "$VERSION" "$CHANGELOG")
           elif [[ "$BRANCH" =~ ^hotfix/ ]]; then
             DESC=$(echo "$BRANCH" | sed 's|hotfix/||')
             TITLE="Hotfix: $DESC"
-            BODY="## Hotfix: $DESC
-
-Correção crítica aplicada diretamente sobre produção.
-
----
-PR automático criado pelo CI após testes unitários e de integração passarem."
+            BODY=$(printf "## Hotfix: %s\n\nCorreção crítica aplicada diretamente sobre produção.\n\n---\nPR automático criado pelo CI após testes unitários e de integração passarem." "$DESC")
           fi
 
           gh pr create \

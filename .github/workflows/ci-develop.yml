@@ -54,14 +54,13 @@ jobs:
         run: pytest src/tests/ --ignore=src/tests/integration -v
 
   bump-release:
-    name: Criar Branch Release
+    name: Abrir PR develop → release
     runs-on: ubuntu-latest
     needs: [quality, unit-tests]
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          # PAT_TOKEN necessário para que o push de release/* dispare ci-integration.yml
           token: ${{ secrets.PAT_TOKEN }}
 
       - name: Configurar git
@@ -84,21 +83,33 @@ jobs:
           echo "version=$NEXT" >> "$GITHUB_OUTPUT"
           echo "Próxima versão: v$NEXT"
 
-      - name: Criar e publicar branch release
+      - name: Criar branch release e abrir PR
+        env:
+          GH_TOKEN: ${{ secrets.PAT_TOKEN }}
         run: |
           VERSION="${{ steps.version.outputs.version }}"
           BRANCH="release/$VERSION"
 
-          if git ls-remote --exit-code origin "refs/heads/$BRANCH" 2>/dev/null; then
-            echo "Branch $BRANCH já existe. Pulando criação."
+          # Cria a branch release a partir do main (base estável)
+          git fetch origin main
+          git checkout -b "$BRANCH" origin/main
+          git push origin "$BRANCH"
+
+          # Abre PR de develop → release/X.Y
+          EXISTING=$(gh pr list --base "$BRANCH" --head develop --json number --jq '.[0].number // empty')
+          if [ -n "$EXISTING" ]; then
+            echo "PR #$EXISTING já existe. Pulando."
             exit 0
           fi
 
-          git checkout -b "$BRANCH"
-          git push origin "$BRANCH"
-          echo "Branch $BRANCH criada — ci-integration.yml será disparado automaticamente."
+          CHANGELOG=$(git log origin/main..origin/develop --pretty=format:"- %s" 2>/dev/null || echo "- Release $VERSION")
+          gh pr create \
+            --base "$BRANCH" \
+            --head develop \
+            --title "Release $VERSION" \
+            --body "$(printf "## Release %s\n\n### Mudanças incluídas\n%s\n\n---\nAo confirmar esse PR, o CI de integração será disparado automaticamente." "$VERSION" "$CHANGELOG")"
 
-      - name: Criar tag de versão
+      - name: Criar tag de versão em develop
         run: |
           VERSION="${{ steps.version.outputs.version }}"
           TAG="v$VERSION"
@@ -109,4 +120,3 @@ jobs:
           fi
           git tag "$TAG"
           git push origin "$TAG"
-          echo "Tag $TAG criada em develop."
