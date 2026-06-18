@@ -9,8 +9,6 @@ import asyncio
 from datetime import datetime, timedelta, timezone
 from unittest.mock import AsyncMock
 
-import pytest
-
 from src.infrastructure.auth.pluggy_auth_service import PluggyAuthService
 
 FUTURE = datetime.now(timezone.utc) + timedelta(hours=22)

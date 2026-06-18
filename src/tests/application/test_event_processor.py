@@ -8,8 +8,6 @@ import asyncio
 from datetime import datetime, timezone
 from unittest.mock import AsyncMock, patch
 
-import pytest
-
 from src.application.event_processor import EventProcessor
 from src.domain.entities.sync import TransactionSyncRecord
 from src.domain.entities.webhook import WebhookEvent

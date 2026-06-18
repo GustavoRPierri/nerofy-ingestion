@@ -8,8 +8,6 @@ import json
 from datetime import datetime, timezone
 from unittest.mock import MagicMock, patch
 
-import pytest
-
 from src.infrastructure.storage.s3_adapter import S3Adapter
 
 FIXED_DATE = datetime(2026, 5, 23, 10, 30, 0, tzinfo=timezone.utc)
