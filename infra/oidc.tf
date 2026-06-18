@@ -118,6 +118,12 @@ resource "aws_iam_role_policy" "github_deploy" {
         Resource = "arn:aws:ssm:${var.aws_region}:*:parameter/nerofy/*"
       },
       {
+        Sid    = "APIGateway"
+        Effect = "Allow"
+        Action = ["apigateway:*"]
+        Resource = "arn:aws:apigateway:${var.aws_region}::/restapis*"
+      },
+      {
         Sid    = "CloudWatchLogs"
         Effect = "Allow"
         Action = ["logs:CreateLogGroup", "logs:DeleteLogGroup",
