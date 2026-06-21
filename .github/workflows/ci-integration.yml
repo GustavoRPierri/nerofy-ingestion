@@ -92,7 +92,7 @@ jobs:
         run: |
           zip -r lambda_function.zip . \
             -x "*.git*" -x ".venv/*" -x "local_output/*" \
-            -x "terraform/*" -x ".github/*" -x "*.pyc" \
+            -x "infra/*" -x ".github/*" -x "*.pyc" \
             -x "*/__pycache__/*" -x "layer/*" \
             -x "lambda_layer.zip" -x "lambda_function.zip" \
             -x "*.egg-info/*" --quiet
@@ -105,21 +105,21 @@ jobs:
 
       - name: Terraform Init
         id: tf_init
-        working-directory: terraform/integration-test
+        working-directory: infra/integration-test
         run: |
           terraform init -input=false \
             -backend-config="key=nerofy-finance-test/${{ github.run_id }}/terraform.tfstate"
 
       - name: Terraform Apply
         id: tf_apply
-        working-directory: terraform/integration-test
+        working-directory: infra/integration-test
         run: |
           terraform apply -auto-approve -input=false \
             -var="run_id=${{ github.run_id }}"
 
       - name: Exportar outputs do Terraform
         id: tf
-        working-directory: terraform/integration-test
+        working-directory: infra/integration-test
         run: |
           echo "lambda_name=$(terraform output -raw lambda_function_name)" >> "$GITHUB_OUTPUT"
           echo "s3_bucket=$(terraform output -raw s3_bucket_name)" >> "$GITHUB_OUTPUT"
@@ -138,7 +138,7 @@ jobs:
       - name: Terraform Destroy
         # Sempre executa para garantir limpeza, mesmo se testes falharem
         if: always() && steps.tf_init.outcome == 'success'
-        working-directory: terraform/integration-test
+        working-directory: infra/integration-test
         run: |
           terraform destroy -auto-approve -input=false \
             -var="run_id=${{ github.run_id }}"
