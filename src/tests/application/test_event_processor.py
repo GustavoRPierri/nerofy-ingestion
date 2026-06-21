@@ -3,19 +3,20 @@
 Todas as dependências de infraestrutura (client, storage, repo, auth)
 são substituídas por AsyncMocks — nenhuma chamada HTTP ou AWS real.
 """
+
 import asyncio
-import pytest
 from datetime import datetime, timezone
 from unittest.mock import AsyncMock, patch
 
-from src.domain.entities.webhook import WebhookEvent
-from src.domain.entities.sync import TransactionSyncRecord
 from src.application.event_processor import EventProcessor
+from src.domain.entities.sync import TransactionSyncRecord
+from src.domain.entities.webhook import WebhookEvent
 
 NOW = datetime(2026, 5, 23, 12, 0, 0, tzinfo=timezone.utc)
 
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
+
 
 def make_processor(sync_record=None):
     """Cria um EventProcessor com todas as dependências mockadas."""
@@ -41,9 +42,15 @@ def make_processor(sync_record=None):
 def make_client(accounts=None, transactions=None, item=None, connector=None):
     client = AsyncMock()
     client.get_item = AsyncMock(return_value=item if item is not None else {"id": "item-abc123"})
-    client.get_accounts = AsyncMock(return_value=accounts if accounts is not None else [{"id": "acc-001"}])
-    client.get_transactions = AsyncMock(return_value=transactions if transactions is not None else [{"id": "txn-001"}])
-    client.get_connector = AsyncMock(return_value=connector if connector is not None else {"id": 201, "name": "Itau"})
+    client.get_accounts = AsyncMock(
+        return_value=accounts if accounts is not None else [{"id": "acc-001"}]
+    )
+    client.get_transactions = AsyncMock(
+        return_value=transactions if transactions is not None else [{"id": "txn-001"}]
+    )
+    client.get_connector = AsyncMock(
+        return_value=connector if connector is not None else {"id": 201, "name": "Itau"}
+    )
     return client
 
 
@@ -52,6 +59,7 @@ def run(coro):
 
 
 # ── item/updated ──────────────────────────────────────────────────────────────
+
 
 class TestHandleItem:
     def test_saves_item_and_transactions(self, item_payload):
@@ -73,8 +81,8 @@ class TestHandleItem:
         with patch("src.application.event_processor.PluggyHttpClient", return_value=client):
             run(processor.execute(event))
 
-        storage.save_json.assert_called_once()   # apenas o item
-        sync_repo.save.assert_called_once()       # cursor atualizado mesmo assim
+        storage.save_json.assert_called_once()  # apenas o item
+        sync_repo.save.assert_called_once()  # cursor atualizado mesmo assim
 
     def test_syncs_all_accounts(self, item_payload):
         processor, storage, sync_repo = make_processor()
@@ -87,11 +95,12 @@ class TestHandleItem:
         with patch("src.application.event_processor.PluggyHttpClient", return_value=client):
             run(processor.execute(event))
 
-        assert sync_repo.save.call_count == 2   # um cursor por conta
+        assert sync_repo.save.call_count == 2  # um cursor por conta
         assert storage.save_json.call_count == 3  # item + 2 contas
 
 
 # ── sync incremental vs histórico completo ────────────────────────────────────
+
 
 class TestSyncAccount:
     def test_first_sync_passes_no_from_date(self, item_payload):
@@ -135,6 +144,7 @@ class TestSyncAccount:
 
 # ── transactions/created ──────────────────────────────────────────────────────
 
+
 class TestHandleTransactions:
     def test_saves_to_correct_s3_path(self, transactions_payload):
         processor, storage, sync_repo = make_processor()
@@ -151,6 +161,7 @@ class TestHandleTransactions:
 
 
 # ── connector/updated ─────────────────────────────────────────────────────────
+
 
 class TestHandleConnector:
     def test_saves_connector_data(self, connector_payload):

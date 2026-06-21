@@ -14,6 +14,9 @@ jobs:
   deploy:
     name: Build & Deploy Lambda
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
 
     steps:
       - name: Checkout
@@ -22,8 +25,7 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN_DEPLOY }}
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Set up Python ${{ env.PYTHON_VERSION }}
@@ -49,7 +51,7 @@ jobs:
             -x "*.git*" \
             -x ".venv/*" \
             -x "local_output/*" \
-            -x "terraform/*" \
+            -x "infra/*" \
             -x ".github/*" \
             -x "*.pyc" \
             -x "*/__pycache__/*" \
@@ -67,17 +69,17 @@ jobs:
           terraform_version: ${{ env.TF_VERSION }}
 
       - name: Terraform Init
-        working-directory: terraform
+        working-directory: infra
         run: terraform init
 
       - name: Terraform Validate
-        working-directory: terraform
+        working-directory: infra
         run: terraform validate
 
       - name: Terraform Plan
-        working-directory: terraform
+        working-directory: infra
         run: terraform plan -out=tfplan -input=false
 
       - name: Terraform Apply
-        working-directory: terraform
+        working-directory: infra
         run: terraform apply -auto-approve -input=false tfplan
