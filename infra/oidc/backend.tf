@@ -12,7 +12,8 @@ terraform {
     bucket         = "nerofy-terraform-state"
     key            = "nerofy-finance/oidc/terraform.tfstate"
     region         = "sa-east-1"
-    use_lockfile   = true
+    dynamodb_table = "terraform-state-lock"
+    encrypt        = true
   }
 }
 
