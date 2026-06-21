@@ -27,7 +27,12 @@ resource "aws_iam_role" "github_deploy" {
       Condition = {
         StringEquals = {
           "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com"
-          "token.actions.githubusercontent.com:sub" = "repo:${var.github_repo}:ref:refs/heads/main"
+        }
+        StringLike = {
+          "token.actions.githubusercontent.com:sub" = [
+            "repo:${var.github_repo}:ref:refs/heads/main",
+            "repo:${var.github_repo}:ref:refs/heads/release/*"
+          ]
         }
       }
     }]
@@ -89,6 +94,7 @@ resource "aws_iam_role_policy" "github_deploy" {
         Effect = "Allow"
         Action = [
           "s3:CreateBucket", "s3:DeleteBucket", "s3:GetBucket*",
+          "s3:GetAccelerateConfiguration",
           "s3:PutBucket*", "s3:PutObject", "s3:GetObject",
           "s3:DeleteObject", "s3:ListBucket"
         ]
@@ -102,6 +108,7 @@ resource "aws_iam_role_policy" "github_deploy" {
         Effect = "Allow"
         Action = [
           "dynamodb:CreateTable", "dynamodb:DeleteTable", "dynamodb:DescribeTable",
+          "dynamodb:DescribeContinuousBackups",
           "dynamodb:UpdateTable", "dynamodb:TagResource", "dynamodb:UntagResource",
           "dynamodb:GetItem", "dynamodb:PutItem", "dynamodb:UpdateItem"
         ]
@@ -221,6 +228,7 @@ resource "aws_iam_role_policy" "github_ci" {
         Effect = "Allow"
         Action = [
           "s3:CreateBucket", "s3:DeleteBucket", "s3:GetBucket*",
+          "s3:GetAccelerateConfiguration",
           "s3:PutBucket*", "s3:PutObject", "s3:GetObject",
           "s3:DeleteObject", "s3:ListBucket"
         ]
@@ -234,6 +242,7 @@ resource "aws_iam_role_policy" "github_ci" {
         Effect = "Allow"
         Action = [
           "dynamodb:CreateTable", "dynamodb:DeleteTable", "dynamodb:DescribeTable",
+          "dynamodb:DescribeContinuousBackups",
           "dynamodb:UpdateTable", "dynamodb:TagResource",
           "dynamodb:GetItem", "dynamodb:PutItem", "dynamodb:UpdateItem"
         ]
