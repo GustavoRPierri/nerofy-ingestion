@@ -51,7 +51,7 @@ jobs:
             -x "*.git*" \
             -x ".venv/*" \
             -x "local_output/*" \
-            -x "terraform/*" \
+            -x "infra/*" \
             -x ".github/*" \
             -x "*.pyc" \
             -x "*/__pycache__/*" \
@@ -69,17 +69,17 @@ jobs:
           terraform_version: ${{ env.TF_VERSION }}
 
       - name: Terraform Init
-        working-directory: terraform
+        working-directory: infra
         run: terraform init
 
       - name: Terraform Validate
-        working-directory: terraform
+        working-directory: infra
         run: terraform validate
 
       - name: Terraform Plan
-        working-directory: terraform
+        working-directory: infra
         run: terraform plan -out=tfplan -input=false
 
       - name: Terraform Apply
-        working-directory: terraform
+        working-directory: infra
         run: terraform apply -auto-approve -input=false tfplan
