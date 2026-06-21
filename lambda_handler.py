@@ -5,12 +5,14 @@ import os
 from typing import List
 
 from config.settings import settings
+from src.application.event_processor import EventProcessor
 from src.domain.entities.sqs import SQSEvent
 from src.domain.entities.webhook import WebhookEvent
-from src.application.event_processor import EventProcessor
-from src.infrastructure.auth.pluggy_auth_service import PluggyAuthService
 from src.infrastructure.auth.auth_repository import AuthRepository
-from src.infrastructure.database.transaction_sync_repository import TransactionSyncRepository
+from src.infrastructure.auth.pluggy_auth_service import PluggyAuthService
+from src.infrastructure.database.transaction_sync_repository import (
+    TransactionSyncRepository,
+)
 from src.infrastructure.storage.s3_adapter import S3Adapter
 from src.utils.http_session import HttpSession
 
@@ -18,9 +20,11 @@ settings.setup_logging()
 logger = logging.getLogger(__name__)
 
 http_session = HttpSession()
-auth_repo    = AuthRepository(table_name=settings.dynamo_auth_table)
-sync_repo    = TransactionSyncRepository(table_name=settings.dynamo_sync_table)
-s3_adapter   = S3Adapter(bucket_name=settings.s3_bronze_bucket or os.environ.get("S3_BRONZE_BUCKET", ""))
+auth_repo = AuthRepository(table_name=settings.dynamo_auth_table)
+sync_repo = TransactionSyncRepository(table_name=settings.dynamo_sync_table)
+s3_adapter = S3Adapter(
+    bucket_name=settings.s3_bronze_bucket or os.environ.get("S3_BRONZE_BUCKET", "")
+)
 
 _LOOP: asyncio.AbstractEventLoop | None = None
 _semaphore = asyncio.Semaphore(5)
@@ -32,7 +36,8 @@ async def _process_event(event: WebhookEvent) -> None:
             http_session=http_session,
             repository=auth_repo,
             client_id=event.client_id,
-            client_secret=settings.pluggy_client_secret or os.environ.get("PLUGGY_CLIENT_SECRET", ""),
+            client_secret=settings.pluggy_client_secret
+            or os.environ.get("PLUGGY_CLIENT_SECRET", ""),
         )
         processor = EventProcessor(
             auth_service=auth_service,

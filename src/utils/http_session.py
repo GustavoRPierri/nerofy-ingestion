@@ -1,5 +1,6 @@
 import logging
-from aiohttp import TCPConnector, ClientSession, ClientResponseError
+
+from aiohttp import ClientResponseError, ClientSession, TCPConnector
 
 logger = logging.getLogger(__name__)
 

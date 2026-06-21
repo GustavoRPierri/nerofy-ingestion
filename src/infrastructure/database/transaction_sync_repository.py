@@ -1,6 +1,8 @@
 import logging
+
 import boto3
 from botocore.exceptions import ClientError
+
 from src.domain.entities.sync import TransactionSyncRecord
 from src.domain.interfaces.repositories import ITransactionSyncRepository
 
@@ -25,5 +27,7 @@ class TransactionSyncRepository(ITransactionSyncRepository):
         try:
             self._table.put_item(Item=record.to_dynamo_item())
         except ClientError as e:
-            logger.error("Erro ao salvar cursor no DynamoDB para conta %s: %s", record.account_id, e)
+            logger.error(
+                "Erro ao salvar cursor no DynamoDB para conta %s: %s", record.account_id, e
+            )
             raise
