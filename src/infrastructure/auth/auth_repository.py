@@ -22,11 +22,13 @@ class AuthRepository:
 
     async def save_auth_cache(self, client_id: str, api_key: str, expires_at: datetime) -> None:
         try:
-            self._table.put_item(Item={
-                "clientId":  client_id,
-                "apiKey":    api_key,
-                "expiresAt": expires_at.isoformat(),
-            })
+            self._table.put_item(
+                Item={
+                    "clientId": client_id,
+                    "apiKey": api_key,
+                    "expiresAt": expires_at.isoformat(),
+                }
+            )
         except ClientError as e:
             logger.error("Erro ao salvar cache de auth para clientId %s: %s", client_id, e)
             raise

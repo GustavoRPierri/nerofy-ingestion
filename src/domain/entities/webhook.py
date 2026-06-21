@@ -1,5 +1,6 @@
 import json
 from typing import ClassVar
+
 from pydantic import BaseModel, ConfigDict, Field, RootModel, model_validator
 
 

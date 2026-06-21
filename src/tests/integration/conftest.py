@@ -1,4 +1,5 @@
 """Fixtures para testes de integração contra Lambda efêmera na AWS."""
+
 import json
 import os
 
@@ -15,7 +16,9 @@ def aws_region() -> str:
 def test_lambda_name() -> str:
     name = os.environ.get("TEST_LAMBDA_NAME")
     if not name:
-        pytest.skip("TEST_LAMBDA_NAME não configurado — testes de integração requerem ambiente AWS.")
+        pytest.skip(
+            "TEST_LAMBDA_NAME não configurado — testes de integração requerem ambiente AWS."
+        )
     return name
 
 
@@ -74,12 +77,14 @@ def sqs_event_valid():
         "clientId": "client-inttest-xyz",
     }
     return {
-        "Records": [{
-            "messageId": "msg-inttest-001",
-            "receiptHandle": "rcpt-inttest-001",
-            "body": json.dumps(payload),
-            "attributes": {"ApproximateReceiveCount": "1"},
-            "eventSource": "aws:sqs",
-            "awsRegion": "sa-east-1",
-        }]
+        "Records": [
+            {
+                "messageId": "msg-inttest-001",
+                "receiptHandle": "rcpt-inttest-001",
+                "body": json.dumps(payload),
+                "attributes": {"ApproximateReceiveCount": "1"},
+                "eventSource": "aws:sqs",
+                "awsRegion": "sa-east-1",
+            }
+        ]
     }
