@@ -87,7 +87,21 @@ resource "aws_iam_role_policy" "github_deploy" {
           "iam:PutRolePolicy", "iam:DeleteRolePolicy",
           "iam:TagRole", "iam:UntagRole"
         ]
-        Resource = "arn:aws:iam::*:role/nerofy-*"
+        Resource = [
+          "arn:aws:iam::*:role/nerofy-*",
+          "arn:aws:iam::*:role/github-actions-*"
+        ]
+      },
+      {
+        Sid    = "OIDC"
+        Effect = "Allow"
+        Action = [
+          "iam:CreateOpenIDConnectProvider", "iam:UpdateOpenIDConnectProvider",
+          "iam:DeleteOpenIDConnectProvider", "iam:GetOpenIDConnectProvider",
+          "iam:TagOpenIDConnectProvider", "iam:UntagOpenIDConnectProvider",
+          "iam:ListOpenIDConnectProviderTags"
+        ]
+        Resource = "arn:aws:iam::*:oidc-provider/token.actions.githubusercontent.com"
       },
       {
         Sid    = "S3Bronze"
