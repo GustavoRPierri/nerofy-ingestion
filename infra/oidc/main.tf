@@ -94,7 +94,7 @@ resource "aws_iam_role_policy" "github_deploy" {
         Effect = "Allow"
         Action = [
           "s3:CreateBucket", "s3:DeleteBucket", "s3:GetBucket*",
-          "s3:GetAccelerateConfiguration",
+          "s3:GetAccelerateConfiguration", "s3:GetLifecycleConfiguration",
           "s3:PutBucket*", "s3:PutObject", "s3:GetObject",
           "s3:DeleteObject", "s3:ListBucket"
         ]
@@ -108,7 +108,7 @@ resource "aws_iam_role_policy" "github_deploy" {
         Effect = "Allow"
         Action = [
           "dynamodb:CreateTable", "dynamodb:DeleteTable", "dynamodb:DescribeTable",
-          "dynamodb:DescribeContinuousBackups",
+          "dynamodb:DescribeContinuousBackups", "dynamodb:DescribeTimeToLive",
           "dynamodb:UpdateTable", "dynamodb:TagResource", "dynamodb:UntagResource",
           "dynamodb:GetItem", "dynamodb:PutItem", "dynamodb:UpdateItem"
         ]
@@ -228,7 +228,7 @@ resource "aws_iam_role_policy" "github_ci" {
         Effect = "Allow"
         Action = [
           "s3:CreateBucket", "s3:DeleteBucket", "s3:GetBucket*",
-          "s3:GetAccelerateConfiguration",
+          "s3:GetAccelerateConfiguration", "s3:GetLifecycleConfiguration",
           "s3:PutBucket*", "s3:PutObject", "s3:GetObject",
           "s3:DeleteObject", "s3:ListBucket"
         ]
@@ -242,7 +242,7 @@ resource "aws_iam_role_policy" "github_ci" {
         Effect = "Allow"
         Action = [
           "dynamodb:CreateTable", "dynamodb:DeleteTable", "dynamodb:DescribeTable",
-          "dynamodb:DescribeContinuousBackups",
+          "dynamodb:DescribeContinuousBackups", "dynamodb:DescribeTimeToLive",
           "dynamodb:UpdateTable", "dynamodb:TagResource",
           "dynamodb:GetItem", "dynamodb:PutItem", "dynamodb:UpdateItem"
         ]
