@@ -93,9 +93,8 @@ resource "aws_iam_role_policy" "github_deploy" {
         Sid    = "S3Bronze"
         Effect = "Allow"
         Action = [
-          "s3:CreateBucket", "s3:DeleteBucket", "s3:GetBucket*",
-          "s3:GetAccelerateConfiguration", "s3:GetLifecycleConfiguration",
-          "s3:PutBucket*", "s3:PutObject", "s3:GetObject",
+          "s3:CreateBucket", "s3:DeleteBucket",
+          "s3:Get*", "s3:PutBucket*", "s3:PutObject",
           "s3:DeleteObject", "s3:ListBucket"
         ]
         Resource = [
@@ -107,8 +106,8 @@ resource "aws_iam_role_policy" "github_deploy" {
         Sid    = "DynamoDB"
         Effect = "Allow"
         Action = [
-          "dynamodb:CreateTable", "dynamodb:DeleteTable", "dynamodb:DescribeTable",
-          "dynamodb:DescribeContinuousBackups", "dynamodb:DescribeTimeToLive",
+          "dynamodb:CreateTable", "dynamodb:DeleteTable",
+          "dynamodb:Describe*", "dynamodb:ListTagsOfResource",
           "dynamodb:UpdateTable", "dynamodb:TagResource", "dynamodb:UntagResource",
           "dynamodb:GetItem", "dynamodb:PutItem", "dynamodb:UpdateItem"
         ]
@@ -227,9 +226,8 @@ resource "aws_iam_role_policy" "github_ci" {
         Sid    = "S3Test"
         Effect = "Allow"
         Action = [
-          "s3:CreateBucket", "s3:DeleteBucket", "s3:GetBucket*",
-          "s3:GetAccelerateConfiguration", "s3:GetLifecycleConfiguration",
-          "s3:PutBucket*", "s3:PutObject", "s3:GetObject",
+          "s3:CreateBucket", "s3:DeleteBucket",
+          "s3:Get*", "s3:PutBucket*", "s3:PutObject",
           "s3:DeleteObject", "s3:ListBucket"
         ]
         Resource = [
@@ -241,8 +239,8 @@ resource "aws_iam_role_policy" "github_ci" {
         Sid    = "DynamoDBTest"
         Effect = "Allow"
         Action = [
-          "dynamodb:CreateTable", "dynamodb:DeleteTable", "dynamodb:DescribeTable",
-          "dynamodb:DescribeContinuousBackups", "dynamodb:DescribeTimeToLive",
+          "dynamodb:CreateTable", "dynamodb:DeleteTable",
+          "dynamodb:Describe*", "dynamodb:ListTagsOfResource",
           "dynamodb:UpdateTable", "dynamodb:TagResource",
           "dynamodb:GetItem", "dynamodb:PutItem", "dynamodb:UpdateItem"
         ]
