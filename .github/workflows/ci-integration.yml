@@ -59,10 +59,41 @@ jobs:
       - name: Run unit tests
         run: pytest src/tests/ --ignore=src/tests/integration -v
 
+  oidc:
+    name: Deploy OIDC IAM
+    runs-on: ubuntu-latest
+    needs: [quality, unit-tests]
+    # Só aplica em push (não em PR checks)
+    if: github.event_name == 'push'
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN_DEPLOY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Terraform Init
+        working-directory: infra/oidc
+        run: terraform init
+
+      - name: Terraform Apply
+        working-directory: infra/oidc
+        run: terraform apply -auto-approve -input=false
+
   integration-tests:
     name: Integration Tests
     runs-on: ubuntu-latest
-    needs: [quality, unit-tests]
+    needs: [oidc]
     permissions:
       id-token: write
       contents: read

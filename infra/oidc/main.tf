@@ -31,7 +31,8 @@ resource "aws_iam_role" "github_deploy" {
         StringLike = {
           "token.actions.githubusercontent.com:sub" = [
             "repo:${var.github_repo}:ref:refs/heads/main",
-            "repo:${var.github_repo}:ref:refs/heads/release/*"
+            "repo:${var.github_repo}:ref:refs/heads/release/*",
+            "repo:${var.github_repo}:ref:refs/heads/hotfix/*"
           ]
         }
       }
@@ -81,10 +82,9 @@ resource "aws_iam_role_policy" "github_deploy" {
         Effect = "Allow"
         Action = [
           "iam:CreateRole", "iam:UpdateRole", "iam:DeleteRole",
-          "iam:GetRole", "iam:PassRole",
+          "iam:Get*", "iam:List*", "iam:PassRole",
           "iam:AttachRolePolicy", "iam:DetachRolePolicy",
-          "iam:PutRolePolicy", "iam:GetRolePolicy", "iam:DeleteRolePolicy",
-          "iam:ListAttachedRolePolicies", "iam:ListRolePolicies",
+          "iam:PutRolePolicy", "iam:DeleteRolePolicy",
           "iam:TagRole", "iam:UntagRole"
         ]
         Resource = "arn:aws:iam::*:role/nerofy-*"
@@ -212,10 +212,9 @@ resource "aws_iam_role_policy" "github_ci" {
         Effect = "Allow"
         Action = [
           "iam:CreateRole", "iam:UpdateRole", "iam:DeleteRole",
-          "iam:GetRole", "iam:PassRole",
+          "iam:Get*", "iam:List*", "iam:PassRole",
           "iam:AttachRolePolicy", "iam:DetachRolePolicy",
-          "iam:PutRolePolicy", "iam:GetRolePolicy", "iam:DeleteRolePolicy",
-          "iam:ListAttachedRolePolicies", "iam:ListRolePolicies",
+          "iam:PutRolePolicy", "iam:DeleteRolePolicy",
           "iam:TagRole", "iam:UntagRole"
         ]
         Resource = "arn:aws:iam::*:role/nerofy-*"
