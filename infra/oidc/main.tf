@@ -66,13 +66,13 @@ resource "aws_iam_role_policy" "github_deploy" {
         Effect = "Allow"
         Action = [
           "lambda:CreateFunction", "lambda:UpdateFunctionCode",
-          "lambda:UpdateFunctionConfiguration", "lambda:GetFunction",
-          "lambda:DeleteFunction", "lambda:AddPermission", "lambda:RemovePermission",
+          "lambda:UpdateFunctionConfiguration", "lambda:Get*",
+          "lambda:List*", "lambda:DeleteFunction",
+          "lambda:AddPermission", "lambda:RemovePermission",
           "lambda:CreateEventSourceMapping", "lambda:UpdateEventSourceMapping",
-          "lambda:DeleteEventSourceMapping", "lambda:GetEventSourceMapping",
+          "lambda:DeleteEventSourceMapping",
           "lambda:PublishLayerVersion", "lambda:DeleteLayerVersion",
-          "lambda:GetLayerVersion", "lambda:ListLayerVersions",
-          "lambda:TagResource", "lambda:UntagResource", "lambda:ListTags"
+          "lambda:TagResource", "lambda:UntagResource"
         ]
         Resource = "*"
       },
@@ -93,9 +93,7 @@ resource "aws_iam_role_policy" "github_deploy" {
         Sid    = "S3Bronze"
         Effect = "Allow"
         Action = [
-          "s3:CreateBucket", "s3:DeleteBucket",
-          "s3:Get*", "s3:PutBucket*", "s3:PutObject",
-          "s3:DeleteObject", "s3:ListBucket"
+          "s3:*"
         ]
         Resource = [
           "arn:aws:s3:::nerofy-bronze-*",
@@ -200,12 +198,12 @@ resource "aws_iam_role_policy" "github_ci" {
         Effect = "Allow"
         Action = [
           "lambda:CreateFunction", "lambda:UpdateFunctionCode",
-          "lambda:UpdateFunctionConfiguration", "lambda:GetFunction",
-          "lambda:DeleteFunction", "lambda:PublishLayerVersion",
-          "lambda:DeleteLayerVersion", "lambda:GetLayerVersion",
+          "lambda:UpdateFunctionConfiguration", "lambda:Get*",
+          "lambda:List*", "lambda:DeleteFunction",
+          "lambda:PublishLayerVersion", "lambda:DeleteLayerVersion",
           "lambda:CreateEventSourceMapping", "lambda:UpdateEventSourceMapping",
-          "lambda:DeleteEventSourceMapping", "lambda:GetEventSourceMapping",
-          "lambda:InvokeFunction", "lambda:TagResource", "lambda:ListTags"
+          "lambda:DeleteEventSourceMapping",
+          "lambda:InvokeFunction", "lambda:TagResource"
         ]
         Resource = "*"
       },
@@ -226,9 +224,7 @@ resource "aws_iam_role_policy" "github_ci" {
         Sid    = "S3Test"
         Effect = "Allow"
         Action = [
-          "s3:CreateBucket", "s3:DeleteBucket",
-          "s3:Get*", "s3:PutBucket*", "s3:PutObject",
-          "s3:DeleteObject", "s3:ListBucket"
+          "s3:*"
         ]
         Resource = [
           "arn:aws:s3:::nerofy-bronze-test-*",
