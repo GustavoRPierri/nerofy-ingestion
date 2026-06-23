@@ -167,10 +167,13 @@ jobs:
         run: pytest src/tests/integration/ -v
 
       - name: Terraform Destroy
-        # Sempre executa para garantir limpeza, mesmo se testes falharem
-        if: always() && steps.tf_init.outcome == 'success'
+        # Sempre executa para garantir limpeza, mesmo se testes ou init quebrarem.
+        # Faz init próprio para não depender do step tf_init anterior.
+        if: always()
         working-directory: infra/integration-test
         run: |
+          terraform init -input=false \
+            -backend-config="key=nerofy-finance-test/${{ github.run_id }}/terraform.tfstate"
           terraform destroy -auto-approve -input=false \
             -var="run_id=${{ github.run_id }}"
 
