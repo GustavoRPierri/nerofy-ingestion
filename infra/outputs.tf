@@ -35,12 +35,3 @@ output "webhook_url" {
   value       = "https://${aws_api_gateway_rest_api.webhook.id}.execute-api.${var.aws_region}.amazonaws.com/${aws_api_gateway_stage.prod.stage_name}/webhook"
 }
 
-output "github_deploy_role_arn" {
-  description = "ARN da role OIDC para deploy — usar como AWS_ROLE_ARN_DEPLOY no GitHub"
-  value       = aws_iam_role.github_deploy.arn
-}
-
-output "github_ci_role_arn" {
-  description = "ARN da role OIDC para CI — usar como AWS_ROLE_ARN_CI no GitHub"
-  value       = aws_iam_role.github_ci.arn
-}
