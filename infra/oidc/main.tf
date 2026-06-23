@@ -130,7 +130,8 @@ resource "aws_iam_role_policy" "github_deploy" {
         Effect = "Allow"
         Action = [
           "sqs:CreateQueue", "sqs:DeleteQueue", "sqs:GetQueueAttributes",
-          "sqs:SetQueueAttributes", "sqs:TagQueue", "sqs:GetQueueUrl"
+          "sqs:SetQueueAttributes", "sqs:TagQueue", "sqs:GetQueueUrl",
+          "sqs:ListQueueTags"
         ]
         Resource = "arn:aws:sqs:${var.aws_region}:*:nerofy-*"
       },
@@ -217,7 +218,8 @@ resource "aws_iam_role_policy" "github_ci" {
           "lambda:PublishLayerVersion", "lambda:DeleteLayerVersion",
           "lambda:CreateEventSourceMapping", "lambda:UpdateEventSourceMapping",
           "lambda:DeleteEventSourceMapping",
-          "lambda:InvokeFunction", "lambda:TagResource"
+          "lambda:InvokeFunction", "lambda:TagResource",
+          "lambda:UntagResource"
         ]
         Resource = "*"
       },
@@ -251,6 +253,7 @@ resource "aws_iam_role_policy" "github_ci" {
           "dynamodb:CreateTable", "dynamodb:DeleteTable",
           "dynamodb:Describe*", "dynamodb:ListTagsOfResource",
           "dynamodb:UpdateTable", "dynamodb:TagResource",
+          "dynamodb:UntagResource",
           "dynamodb:GetItem", "dynamodb:PutItem", "dynamodb:UpdateItem"
         ]
         Resource = "arn:aws:dynamodb:${var.aws_region}:*:table/*-test-*"
@@ -261,7 +264,7 @@ resource "aws_iam_role_policy" "github_ci" {
         Action = [
           "sqs:CreateQueue", "sqs:DeleteQueue", "sqs:GetQueueAttributes",
           "sqs:SetQueueAttributes", "sqs:TagQueue", "sqs:GetQueueUrl",
-          "sqs:SendMessage"
+          "sqs:SendMessage", "sqs:ListQueueTags"
         ]
         Resource = "arn:aws:sqs:${var.aws_region}:*:nerofy-events-test-*"
       },
