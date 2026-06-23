@@ -256,6 +256,22 @@ resource "aws_iam_role_policy" "github_ci" {
         Resource = "arn:aws:dynamodb:${var.aws_region}:*:table/*-test-*"
       },
       {
+        Sid    = "SQSTest"
+        Effect = "Allow"
+        Action = [
+          "sqs:CreateQueue", "sqs:DeleteQueue", "sqs:GetQueueAttributes",
+          "sqs:SetQueueAttributes", "sqs:TagQueue", "sqs:GetQueueUrl",
+          "sqs:SendMessage"
+        ]
+        Resource = "arn:aws:sqs:${var.aws_region}:*:nerofy-events-test-*"
+      },
+      {
+        Sid    = "APIGatewayTest"
+        Effect = "Allow"
+        Action = ["apigateway:*"]
+        Resource = "arn:aws:apigateway:${var.aws_region}::/restapis*"
+      },
+      {
         Sid    = "CloudWatchLogs"
         Effect = "Allow"
         Action = [
