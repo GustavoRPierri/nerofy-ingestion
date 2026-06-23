@@ -17,7 +17,6 @@ terraform {
     region         = "sa-east-1"
     dynamodb_table = "terraform-state-lock"
     encrypt        = true
-    profile        = "nerofy"
   }
 }
 
