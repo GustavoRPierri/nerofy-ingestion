@@ -5,6 +5,7 @@ Validam a infraestrutura AWS (Lambda, DynamoDB, S3) sem depender de
 credenciais reais da Pluggy — o EXECUCAO=local na Lambda evita fetch do SSM,
 e a falha eventual na API Pluggy é tratada pela Lambda (retorna 200 ou 500).
 """
+
 import json
 
 
@@ -45,9 +46,9 @@ class TestLambdaInvocation:
         assert response["StatusCode"] == 200, "Invocação Lambda falhou (erro de infraestrutura)"
 
         result = json.loads(response["Payload"].read())
-        assert result["statusCode"] == 400, (
-            f"Evento inválido deveria retornar 400, retornou: {result}"
-        )
+        assert (
+            result["statusCode"] == 400
+        ), f"Evento inválido deveria retornar 400, retornou: {result}"
 
     def test_valid_sqs_event_returns_structured_response(
         self, lambda_client, test_lambda_name, sqs_event_valid
@@ -64,9 +65,7 @@ class TestLambdaInvocation:
         assert "statusCode" in result, "Resposta da Lambda deve conter 'statusCode'"
         assert "body" in result, "Resposta da Lambda deve conter 'body'"
         # 200 = sucesso completo, 500 = falha ao chamar Pluggy API (sem credenciais reais)
-        assert result["statusCode"] in (200, 500), (
-            f"statusCode inesperado: {result['statusCode']}"
-        )
+        assert result["statusCode"] in (200, 500), f"statusCode inesperado: {result['statusCode']}"
 
     def test_lambda_not_crashed_by_concurrent_events(
         self, lambda_client, test_lambda_name, sqs_event_invalid

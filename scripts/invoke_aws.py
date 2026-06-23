@@ -7,6 +7,7 @@ Uso:
     python scripts/invoke_aws.py transactions
     python scripts/invoke_aws.py connector
 """
+
 import subprocess
 import sys
 from pathlib import Path
@@ -14,10 +15,11 @@ from pathlib import Path
 ROOT = Path(__file__).parent.parent
 
 _EVENT_FILES = {
-    "item":         "events/sqs_item_update.json",
+    "item": "events/sqs_item_update.json",
     "transactions": "events/sqs_transactions.json",
-    "connector":    "events/sqs_connector.json",
+    "connector": "events/sqs_connector.json",
 }
+
 
 def main() -> None:
     event_type = sys.argv[1] if len(sys.argv) > 1 else "item"
@@ -31,10 +33,16 @@ def main() -> None:
 
     result = subprocess.run(
         [
-            "sam", "local", "invoke", "IngestionFunction",
-            "--event", str(event_file),
-            "--profile", "nerofy",
-            "--region", "sa-east-1",
+            "sam",
+            "local",
+            "invoke",
+            "IngestionFunction",
+            "--event",
+            str(event_file),
+            "--profile",
+            "nerofy",
+            "--region",
+            "sa-east-1",
         ],
         cwd=str(ROOT),
     )
