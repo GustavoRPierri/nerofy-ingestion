@@ -11,7 +11,7 @@ class PluggyAuthService:
         self._repo = repository
         self._client_id = client_id
         self._client_secret = client_secret
-        self._api_key: str | None = None
+        self._api_key: str = ""
         self._expires_at: datetime | None = None
 
     async def get_valid_api_key(self) -> str:
