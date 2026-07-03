@@ -72,6 +72,7 @@ resource "aws_iam_role_policy" "github_deploy" {
           "lambda:AddPermission", "lambda:RemovePermission",
           "lambda:CreateEventSourceMapping", "lambda:UpdateEventSourceMapping",
           "lambda:DeleteEventSourceMapping",
+          "lambda:InvokeFunction",
           "lambda:PublishLayerVersion", "lambda:DeleteLayerVersion",
           "lambda:TagResource", "lambda:UntagResource"
         ]
