@@ -1,13 +1,13 @@
 from datetime import datetime, timezone
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 
 class TransactionSyncRecord(BaseModel):
     account_id: str
     item_id: str
     last_synced_at: datetime
-    total_synced: int = Field(default=0)
+    total_synced: int
 
     @property
     def is_first_sync(self) -> bool:

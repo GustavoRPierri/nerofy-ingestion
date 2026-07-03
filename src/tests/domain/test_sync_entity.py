@@ -58,11 +58,12 @@ class TestTransactionSyncRecordProperties:
         )
         assert first.is_first_sync is True
 
-    def test_total_synced_defaults_to_zero(self):
+    def test_total_synced_zero_is_first_sync(self):
         record = TransactionSyncRecord(
             account_id="acc-001",
             item_id="item-abc",
             last_synced_at=NOW,
+            total_synced=0,
         )
         assert record.total_synced == 0
         assert record.is_first_sync is True

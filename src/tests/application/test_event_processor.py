@@ -103,15 +103,15 @@ class TestHandleItem:
 
 
 class TestSyncAccount:
-    def test_first_sync_passes_no_from_date(self, item_payload):
+    def test_first_sync_uses_initial_date(self, item_payload):
         processor, storage, sync_repo = make_processor(sync_record=None)
         client = make_client(transactions=[])
 
         run(processor._sync_account("item-abc", "acc-001", "evt-001", client))
 
-        client.get_transactions.assert_called_once_with("acc-001", from_date=None)
+        client.get_transactions.assert_called_once_with("acc-001", from_date="1900-01-01")
 
-    def test_incremental_sync_passes_from_date(self, item_payload):
+    def test_incremental_sync_passes_exact_date(self, item_payload):
         existing = TransactionSyncRecord(
             account_id="acc-001",
             item_id="item-abc",
@@ -124,7 +124,7 @@ class TestSyncAccount:
         run(processor._sync_account("item-abc", "acc-001", "evt-001", client))
 
         call_kwargs = client.get_transactions.call_args.kwargs
-        assert call_kwargs["from_date"] is not None
+        assert call_kwargs["from_date"] == "2026-05-23"
 
     def test_total_synced_accumulates(self):
         existing = TransactionSyncRecord(
