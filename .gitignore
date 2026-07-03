@@ -4,6 +4,7 @@ __pycache__/
 *.pyo
 .venv/
 venv/
+notebooks/
 .aws-sam/
 local_output/
 *.egg-info/
@@ -11,6 +12,7 @@ dist/
 .pytest_cache/
 .mypy_cache/
 .claude/
+.openclaude/
 lambda_function.zip
 lambda_layer.zip
 layer/
