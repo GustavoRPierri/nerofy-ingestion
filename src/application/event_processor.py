@@ -1,6 +1,6 @@
 import asyncio
 import logging
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 
 from src.domain.entities.sync import TransactionSyncRecord
 from src.domain.entities.webhook import ConnectorEvent, ItemEvent, TransactionsEvent
@@ -8,7 +8,6 @@ from src.domain.interfaces.clients import IPluggyClient
 from src.infrastructure.clients.pluggy_http_client import PluggyHttpClient
 
 logger = logging.getLogger(__name__)
-_OVERLAP_DAYS = 3
 
 
 class EventProcessor:
@@ -50,15 +49,17 @@ class EventProcessor:
         )
 
     async def _sync_account(self, item_id, account_id, event_id, client):
+
         sync_record = await self._sync_repo.get(account_id)
         synced_at = datetime.now(timezone.utc)
+
         if sync_record is None:
-            from_date = None
+            from_date = "1900-01-01"
         else:
-            from_date = (sync_record.last_synced_at - timedelta(days=_OVERLAP_DAYS)).strftime(
-                "%Y-%m-%d"
-            )
+            from_date = sync_record.last_synced_at.strftime("%Y-%m-%d")
+
         transactions = await client.get_transactions(account_id, from_date=from_date)
+
         if transactions:
             await self._storage.save_json(
                 base_path=f"bronze/transactions/item_{item_id}/account_{account_id}",
@@ -72,7 +73,9 @@ class EventProcessor:
                     "transactions": transactions,
                 },
             )
+
         new_total = (sync_record.total_synced if sync_record else 0) + len(transactions)
+
         await self._sync_repo.save(
             TransactionSyncRecord(
                 account_id=account_id,
@@ -83,7 +86,9 @@ class EventProcessor:
         )
 
     async def _handle_transactions(self, trx: TransactionsEvent, client: IPluggyClient) -> None:
+
         transactions = await client.get_transactions(trx.account_id)
+
         await self._storage.save_json(
             base_path=f"bronze/transactions/item_{trx.item_id}/account_{trx.account_id}",
             filename=f"{trx.event_id}.json",
@@ -95,7 +100,9 @@ class EventProcessor:
         )
 
     async def _handle_connector(self, conn: ConnectorEvent, client: IPluggyClient) -> None:
+
         connector_data = await client.get_connector(conn.connector_id)
+
         await self._storage.save_json(
             base_path=f"bronze/connectors/{conn.connector_id}",
             filename=f"{conn.event_id}.json",
